@@ -8,7 +8,7 @@ This is a FastAPI application providing an OpenAI-compatible API for sporadic te
 
 - Python 3.6 or higher
 - FastAPI
-- A Runpod serverless endpoint running `runpod/worker-vllm:0.2.2`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
+- A Runpod serverless endpoint running `runpod/worker-vllm:0.2.3`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
 
 ### Installing
 
@@ -31,7 +31,7 @@ The application provides the following API endpoints which mirror the OpenAI api
 
 To start the application, you can use the following command:
 
-`python main.py --config /path/to/config/file`
+`python main.py --config "/path/to/config/file"`
 
 You can also specify different parameters using command line arguments:
 
