@@ -15,5 +15,5 @@
     ],
     
     "host": "OPTIONAL",
-    "port": "OPTIONAL"
+    "port": 3000
 }
