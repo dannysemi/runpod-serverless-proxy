@@ -1,0 +1,10 @@
+ChatML:
+{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}<|im_start|>assistant\n
+
+Bagel:
+{% for message in messages %}{{bos_token + message['role'] + '\n' + message['content'] + '\n' + eos_token + '\n'}}{% endfor %}{{bos_token + 'assistant\n'}}
+
+Simple (could work for various models that don't specify the chat template):
+{% for message in messages %}{{message['role']|upper + ':' + '\n' + message['content'] + '\n'}}{% endfor %}\nASSISTANT:\n
+
+//I like to include the AI prompt at the end, but it may not be necessary.

@@ -1,0 +1,19 @@
+{
+    "api_key": "YOUR_API_KEY",
+    "models": [
+        {
+            "endpoint": "YOUR_ENDPOINT",
+            "model": "YOUR_MODEL_NAME"
+        },
+        {
+            "endpoint": "YOUR_OTHER_ENDPOINT",
+            "model": "YOUR_OTHER_MODEL_NAME",
+            "timeout": "OPTIONAL",
+            "use_openai_format": "OPTIONAL",
+            "batch_size": "OPTIONAL"
+        }
+    ],
+    
+    "host": "OPTIONAL",
+    "port": "OPTIONAL"
+}
