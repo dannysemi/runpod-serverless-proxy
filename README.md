@@ -52,7 +52,7 @@ An example config file can be copied from `config.example.json` found in the roo
 For example:
 
 ```bash
-python main.py --endpoint my_endpoint --api_key my_api_key --model my_model --timeout 30 --use_openai_format 1 --batch_size 10 --host 0.0.0.0 --port 8000
+python main.py --endpoint "my_endpoint" --api_key "my_api_key" --model "my_model" --timeout 30 --use_openai_format 1 --batch_size 10 --host "0.0.0.0" --port 8000
 ```
 
 ## Built With
