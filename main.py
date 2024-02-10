@@ -14,7 +14,7 @@ model_data = {
 
 configs = []
 
-def run(config_path: str, host: str = "127.0.0.1", port: str = 3000):
+def run(config_path: str, host: str = "127.0.0.1", port: int = 3000):
     if config_path:
         config_dict = load_config(config_path)  # function to load your config file
 
