@@ -31,7 +31,7 @@ The application provides the following API endpoints which mirror the OpenAI api
 
 To start the application, you can use the following command:
 
-`python main.py --config /path/to/config/file`
+`python main.py --config "/path/to/config/file"`
 
 You can also specify different parameters using command line arguments:
 
