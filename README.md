@@ -8,7 +8,7 @@ This is a FastAPI application providing an OpenAI-compatible API for sporadic te
 
 - Python 3.6 or higher
 - FastAPI
-- A Runpod serverless endpoint running `runpod/worker-vllm:0.2.2`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
+- A Runpod serverless endpoint running `runpod/worker-vllm:0.2.3`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
 
 ### Installing
 

@@ -42,15 +42,15 @@ Important: Before setting up the volume, ensure you are aware of the size of the
 1. Navigate to the [Serverless](https://www.runpod.io/console/serverless) section on the Runpod platform and click the *New Endpoint* button.
 2. The following menu contains a lot of important settings so I will go over them individually.
 
-![endpoint basic settings](image-1.png)
+![endpoint basic settings](image.png)
 
 3. These are the settings I commonly use for my endpoints.
     - Assign a memorable name to the endpoint. This will make it easier to find your settings and use them as a template for future endpoints.
     - Ensure that the hardware configuration matches what is available in the region you selected for your network volume.
     - Even though I have scaling set up to rarely exceed 1, I typically set Max Workers to 2. This prompts the platform to initialize multiple workers for your endpoint. Since charges only apply when workers are executing, having multiple initialized workers can help maintain endpoint accessibility during high-traffic periods on the platform in that region.
-    - The tooltip for Idle timeout indicates that charges apply during idle time before the worker goes to sleep. I've found the default 5-second setting to be generally satisfactory. However, if you know that you won't be accessing the endpoint in quick succession, you could lower this for additional cost savings. I advise against increasing this timeout with the aim of keeping the worker active for extended periods. The goal is to minimize the time that the worker is active and executing, as that's what incurs charges. If you need more frequent access to the endpoint, a different solution (such as pods or managed API) might be more suitable. Bear in mind, though, that the following setting can make the transition between active and inactive states almost seamless under the right conditions.
+    - The tooltip for Idle timeout indicates that charges apply during idle time before the worker goes to sleep. Setting this to 1 (the lowest value allowed) will limit the amount of time that a worker is active to its minimum. I set it to 1, but if you are making frequent requests then you may benefit from a higher value.
     - FlashBoot is the key feature here and should always be enabled. If the platform doesn't recycle the worker before you access it again, it restarts almost instantly, ready for inferencing.
-    - This app is designed to work with the `runpod/worker-vllm:0.2.2` container.
+    - This app is designed to work with the `runpod/worker-vllm:0.2.3` container.
     - The default 5GB of container disk space has been sufficient for me, provided that I have a network volume attached.
 
 ![worker environment variables](image-2.png)
@@ -59,7 +59,7 @@ Important: Before setting up the volume, ensure you are aware of the size of the
     - `MODEL_NAME` is required and should refer to a model on [HuggingFace](https://huggingface.co/). `MODEL_REVISION` is also available if your model has multiple revisions.
     - `QUANTIZATION` should be set to the method your model uses. If you are not using a quantized model, omit this setting. I have had more luck with `gptq` models than `awq`.
     - `CUSTOM_CHAT_TEMPLATE` is necessary if you want to send the api messages and receive a chat completion object, but your model doesn't have a default template or your messages don't conform to the default template. I've noticed that many of the default settings either don't apply well to the model or are overly strict. I have included some examples that I use in [Chat Templates](../chat_templates.jinja2). For a lot of the more popular models you won't need this setting.
-    - `TRUST_REMOTE_CODE` is required by some models. If the model instructions don't specify that you need it, or if you don't encounter an error related to this setting, then omit it. Note: The current version of the `runpod/worker-vllm:0.2.2` doesn't implement this setting correctly. Use `runpod/worker-vllm:dev` until the fix makes it into the main branch if you need this setting.
+    - `TRUST_REMOTE_CODE` is required by some models. If the model instructions don't specify that you need it, or if you don't encounter an error related to this setting, then omit it.
     - `MAX_MODEL_LENGTH` is another setting that you usually won't need to use. Most models have a reasonable max_model_length, which vllm typically loads without issues. This particular example has a very large max_model_length and doesn't work with the hardware I have chosen unless I limit it.
     - `GPU_MEMORY_UTILIZATION` is necessary a lot of times if you are working with a large model. vllm tries to reserve most (`0.98` by default) of the available vram when it starts up. There are some other processes that need access to vram though. If you receive errors related to memory usage, and this setting is specifically mentioned, consider setting it to a lower value. May take some tweaking to get it right.
     - `WORKER_CUDA_VERSION` the default for this setting is `11.8.0`. In my experience, setting it to `12.1.0` provides a performance boost. However, according to the description on the worker-vllm repo, this may somewhat limit your pool of available resources. I always set it to `12.1.0`.
