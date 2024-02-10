@@ -38,7 +38,7 @@ You can also specify different parameters using command line arguments:
 - `-c` or `--config`: Path to the config file. If this is provided, the application will load configurations from the specified file.
 - `-e` or `--endpoint`: API endpoint ID. This is mandatory if not loading from a config file. An alphanumeric string that should be found on the endpoint details for your Runpod serverless endpoint.
 - `-k` or `--api_key`: API key. This is mandatory if not loading from a config file. This is your Runpod API key.
-- `-m` or `--model`: Model. This is mandatory if not loading from a config file. Used for routing requests to a specific worker. Note: you can have multiple models/runpod endpoints if using a config file.
+- `-m` or `--model`: Model name. This is mandatory if not loading from a config file. Used for routing requests to a specific worker. You can choose to name your models whatever you want. This is how you will reference them in the api or in menus with connected apps. Note: you can have multiple models/runpod endpoints if using a config file.
 - `-t` or `--timeout`: Timeout. *Default: 150*. Time in seconds before this app sends a request to cancel the job through runpod's api.
 - `-o` or `--use_openai_format`: Use OpenAI format. *Default: 1*. Tells the api to attempt to send the job as an OpenAI chat completion. Will fail if the model is not configured to handle messages (should have a chat template in its config)
 - `-b` or `--batch_size`: Batch size. *Default: 30*.
