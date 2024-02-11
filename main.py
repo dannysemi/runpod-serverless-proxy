@@ -157,7 +157,7 @@ async def get_chat_asynchronous(runpod, chat):
         # Check if the chunk is not cancelled
         if(chunk['status'] != "CANCELLED"):
             # Prepare the chat message for SSE
-            prepared_message = prepare_chat_message_for_sse(chunk["stream"][0]["output"])
+            prepared_message = prepare_chat_message_for_sse(chunk["stream"])
             # Encode the prepared message
             data = f'data: {prepared_message}\n\n'.encode('utf-8')
             yield data
@@ -178,20 +178,26 @@ def get_synchronous(runpod, prompt):
         raise HTTPException(status_code=408, detail="Request timed out.")
     return data
 
+
 # Function to prepare chat message for SSE
 def prepare_chat_message_for_sse(message: dict) -> str:
-    # Check if 'choices' in message and if it's not empty
-    if 'choices' in message and message['choices']:
-            # Loop through all choices
-            for choice in message['choices']:
-                # Check if 'delta' and 'content' in choice
-                if 'delta' in choice and 'content' in choice['delta']:
-                    # Join the content list into a string
-                    joined_content = ''.join(choice['delta']['content'])
-                    # Update the 'content' in 'delta' with the joined string
-                    choice['delta']['content'] = joined_content
+    generated_text = ""
+    for stream_chunk in message:
+        output = stream_chunk["output"]
+
+        # Loop through all choices, if any
+        for choice in output.get('choices', []):
+            # Check if 'delta' and 'content' in choice
+            if 'delta' in choice and 'content' in choice['delta']:
+                # Join the content list into a string
+                joined_content = ''.join(choice['delta']['content'])
+                # Update the 'content' in 'delta' with the joined string
+                generated_text += joined_content
+
+    message[0]["output"]["choices"][0]["delta"]["content"] = generated_text
+
     # Return the message as a JSON string
-    return json.dumps(message)
+    return json.dumps(message[0]["output"])
 
 # Create a FastAPI application
 app = FastAPI()
