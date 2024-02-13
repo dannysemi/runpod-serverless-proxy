@@ -62,7 +62,6 @@ Important: Before setting up the volume, ensure you are aware of the size of the
     - `TRUST_REMOTE_CODE` is required by some models. If the model instructions don't specify that you need it, or if you don't encounter an error related to this setting, then omit it.
     - `MAX_MODEL_LENGTH` is another setting that you usually won't need to use. Most models have a reasonable max_model_length, which vllm typically loads without issues. This particular example has a very large max_model_length and doesn't work with the hardware I have chosen unless I limit it.
     - `GPU_MEMORY_UTILIZATION` is necessary a lot of times if you are working with a large model. vllm tries to reserve most (`0.98` by default) of the available vram when it starts up. There are some other processes that need access to vram though. If you receive errors related to memory usage, and this setting is specifically mentioned, consider setting it to a lower value. May take some tweaking to get it right.
-    - `WORKER_CUDA_VERSION` the default for this setting is `11.8.0`. In my experience, setting it to `12.1.0` provides a performance boost. However, according to the description on the worker-vllm repo, this may somewhat limit your pool of available resources. I always set it to `12.1.0`.
     - You can choose to `DISABLE_LOG_REQUESTS` if you want. The documentation doesn't clearly specify what is done with these logs, and I didn't extensively search for this information.
 
 ![endpoint advanced settings](image-3.png)

@@ -1,6 +1,6 @@
 # Runpod Serverless Proxy
 
-This is a FastAPI application providing an OpenAI-compatible API for sporadic text generation using models hosted on [Runpod](https://runpod.io) serverless infrastructure. It is not recommended for batch jobs or tasks with large run times.
+This is a FastAPI application providing an OpenAI-compatible API for sporadic text generation using models hosted on [Runpod](https://runpod.io?ref=rql9o4ou) serverless infrastructure. It is not recommended for batch jobs or tasks with large run times.
 
 ## Getting Started
 
@@ -32,8 +32,8 @@ pip install .
 The application provides the following API endpoints which mirror the OpenAI api:
 
 - `POST /chat/completions`: Generate a chat completion
-- `POST /completions`: Generate a completion
-- `GET /models`: List all models (Note: streaming does not work for this endpoint.)
+- `POST /completions`: Generate a completion (Note: streaming does not work for this endpoint.)
+- `GET /models`: List all models
 - `GET /models/{model_id}`: Get a specific model
 
 To start the application, you can use the following command:
