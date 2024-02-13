@@ -8,13 +8,15 @@ This guide will help you create a serverless LLM endpoint for the Hugging Face m
 
 Follow the instructions provided in [hf-pre-downloader](./hf_pre_downloader.md) guide to load the model in the network volume before creating the endpoint. This will save on execution time.
 
-I use a network volume with a size of `45 gb`.
+I use a network volume with a size of `45 gb`. Make sure the region you choose has 48gb hardware configurations available.
 
 ## Endpoint Configuration 
 
 ![endpoint configuration](image-1.png)
 
 ![template configuration](image-5.png)
+
+**Important:** Be sure to use the new `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker or this configuration will not work.
 
 Here are the template configuration values:
 

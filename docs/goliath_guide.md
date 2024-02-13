@@ -8,13 +8,15 @@ Configuration for this model [TheBloke/Goliath-longLORA-120b-rope8-32k-fp16-AWQ]
 
 Follow the instructions provided in [hf-pre-downloader](./hf_pre_downloader.md) guide to load the model in the network volume before creating the endpoint. This will save on execution time.
 
-I use a network volume with a size of `65 gb`.
+I use a network volume with a size of `65 gb`. Make sure the region you choose has 48gb hardware configurations available.
 
 ## Endpoint Configuration
 
 ![endpoint configuration](image-10.png)
 
 ![template configuration](image-11.png)
+
+**Important:** Be sure to use the new `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker or this configuration will not work.
 
 Here are the template configuration values:
 
