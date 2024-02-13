@@ -9,6 +9,13 @@ This is a FastAPI application providing an OpenAI-compatible API for sporadic te
 - Python 3.6 or higher
 - FastAPI
 - A Runpod serverless endpoint running `runpod/worker-vllm:0.2.3`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
+- **New**: Optionally use `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker for access to `enforce_eager` flag. This flag frees up vram occupied by CUDA graphs at the expense of execution speed. Overall quality remains the same.
+
+### New guides for SillyTavern and hf-pre-downloader
+
+- [hf-pre-downloader](./docs/hf_pre_downloader.md) - Reduce initial execution time on your endpoint by downloading the model files to the network volume using a pod in advance.
+- [LoneStriker/MiquMaid-v2-70B-DPO-GPTQ guide](./docs/miqumaid_guide.md) - Complete guide to setting up this endpoint and accessing it through SillyTavern UI.
+- [TheBloke/Goliath-longLORA-120b-rope8-32k-fp16-AWQ](./docs/goliath_guide.md) - Very similar to the MiquMaid guide, but uses 2x A40s in the configuration.
 
 ### Installing
 
