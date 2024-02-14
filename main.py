@@ -1,6 +1,6 @@
 # Importing necessary libraries
 from fastapi import FastAPI, APIRouter, Request, HTTPException
-from runpod_serverless import ApiConfig, RunpodServerless, Params
+from runpod_serverless import ApiConfig, RunpodServerlessCompletion, Params, RunpodServerlessEmbedding
 from fastapi.responses import StreamingResponse, JSONResponse
 import json, time
 from uvicorn import Config, Server
@@ -105,7 +105,7 @@ async def request_chat(request: Request):
         params_dict = params.dict()
         params_dict.update(data)
         new_params = Params(**params_dict)
-        runpod: RunpodServerless = RunpodServerless(api=api, params=new_params)
+        runpod: RunpodServerlessCompletion = RunpodServerlessCompletion(api=api, params=new_params)
         
         if(data["stream"]==False):
             response = get_chat_synchronous(runpod, payload)
@@ -132,11 +132,33 @@ async def request_prompt(request: Request):
         params_dict = params.dict()
         params_dict.update(data)
         new_params = Params(**params_dict)
-        runpod: RunpodServerless = RunpodServerless(api=api, params=new_params)
+        runpod: RunpodServerlessCompletion = RunpodServerlessCompletion(api=api, params=new_params)
         return get_synchronous(runpod, payload)
         
     except Exception as e:
         return JSONResponse(status_code=500, content={"detail": str(e)})
+
+# API endpoint for completions
+@router.post('/embeddings')
+async def request_embeddings(request: Request):
+    try:
+        data = await request.json()
+        print(data)
+        model = data.get("model")
+        print(model)
+        if not model:
+            return JSONResponse(status_code=400, content={"detail ": "Missing model in request."})
+        payload = data.get("input")
+        print(payload)
+        api = get_config_by_model(model)
+        print(api)
+        runpod: RunpodServerlessEmbedding = RunpodServerlessEmbedding(api=api)
+        print(runpod)
+        return get_embedding(runpod, payload)
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"detail": str(e)})
+
 # Function to get chat synchronously
 def get_chat_synchronous(runpod, chat):
     # Generate a response from the runpod
@@ -173,6 +195,20 @@ def get_synchronous(runpod, prompt):
     if(response['status'] != "CANCELLED"):
             # Format the response
             data = format_response(response)
+    else:
+        # If the request is cancelled, raise an exception
+        raise HTTPException(status_code=408, detail="Request timed out.")
+    return data
+
+# Function to get synchronous response
+def get_embedding(runpod, embedding):
+    # Generate a response from the runpod
+    response = runpod.generate(embedding)
+    print(response)
+    # Check if the response is not cancelled
+    if(response['status'] != "CANCELLED"):
+            # Format the response
+            data = response["output"]
     else:
         # If the request is cancelled, raise an exception
         raise HTTPException(status_code=408, detail="Request timed out.")

@@ -1,6 +1,6 @@
 # Runpod Serverless Proxy
 
-This is a FastAPI application providing an OpenAI-compatible API for sporadic text generation using models hosted on [Runpod](https://runpod.io) serverless infrastructure. It is not recommended for batch jobs or tasks with large run times.
+This is a FastAPI application providing an OpenAI-compatible API for sporadic text generation using models hosted on [Runpod](https://runpod.io?ref=rql9o4ou) serverless infrastructure. It is not recommended for batch jobs or tasks with large run times.
 
 ## Getting Started
 

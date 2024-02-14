@@ -5,6 +5,15 @@ from pydantic import BaseModel
 import requests
 import aiohttp
 from datetime import datetime
+from pymongo import MongoClient
+
+
+client = MongoClient('mongodb://localhost:27017/')
+# Accessing the 'local' database
+db = client['local']
+# Accessing the 'runpod_proxy' collection
+mongo = db['runpod_proxy']
+
 
 # Pydantic model for API configuration
 class ApiConfig(BaseModel):
@@ -34,7 +43,7 @@ class Params(BaseModel):
 
 
 # Class for interacting with Runpod API
-class RunpodServerless:
+class RunpodServerlessCompletion:
     def __init__(self, api: ApiConfig, params: Params):
         self.api_key = api.api_key
         self.url = api.url
@@ -84,6 +93,27 @@ class RunpodServerless:
         else:
             input["messages"] = payload
         return input
+    
+    # Function to prepare the metrics from the data received from the request
+    def _prepare_metrics(self, data):
+        metrics = {
+            "timestamp": datetime.now().isoformat(),
+            "status": data.get("status"),
+            "model": self.model,
+            "delayTime": data.get("delayTime"),
+            "executionTime": data.get("executionTime"),
+            "object": "completion"
+        }
+
+        if data.get("output"):
+            last_output = data["output"][-1]['usage']
+            metrics.update({
+                "completion_tokens": last_output.get('completion_tokens') or last_output.get('output'),
+                "prompt_tokens": last_output.get('prompt_tokens') or last_output.get('input'),
+                "total_tokens": last_output.get('total_tokens') or (last_output.get('input') + last_output.get('output')),
+            })
+        return metrics
+
 
     # This function generates a request and waits for its completion or cancellation.
     # If the request takes more than the specified timeout, it cancels the request.
@@ -101,12 +131,18 @@ class RunpodServerless:
             # Get the status of the request
             # If the request is completed or cancelled, log the metrics and break the loop
             response = self._get_request(f"{self._request_base_url()}/status/{self.active_request_id}")
+
+            if response["status"] in ["COMPLETED", "CANCELLED"]:
+                mongo.insert_one(self._prepare_metrics(response))
+                break
+
             # Calculate the elapsed time
             # If the elapsed time is more than the timeout, cancel the request and log the metrics
             elapsed_time = time.time() - start_time  
             if elapsed_time > self.timeout:  
                 response = self.cancel_requests()  
                 print(response)
+                mongo.insert_one(self._prepare_metrics(response))
                 print("Request timed out.")
                 break
             # Wait for one second before checking the request status again
@@ -144,12 +180,117 @@ class RunpodServerless:
                         if elapsed_time > self.timeout:  
                             response = self.cancel_requests()  
                             print(response)
+                            mongo.insert_one(self._prepare_metrics(response))
                             print("Request timed out.")
                             yield response
                             break
                     except asyncio.TimeoutError:
                         print("Request timed out.")
                         break
+                # Get the final status of the request
+                async with session.get(f"{self._request_base_url()}/status/{self.active_request_id}", headers=self._request_headers()) as response:
+                    data = await response.json()
+                    # Log the metrics
+                    mongo.insert_one(self._prepare_metrics(data))
+
+    
+    # This function cancels the active request.
+    def cancel_requests(self) -> Optional[requests.Response]:
+        # If there is no active request, return None
+        if not self.active_request_id:
+            return None
+        # Post a cancellation request and return the response
+        return self._post_request(f"{self._request_base_url()}/cancel/{self.active_request_id}", {})
+    
+# Class for interacting with Runpod API
+class RunpodServerlessEmbedding:
+    def __init__(self, api: ApiConfig):
+        self.api_key = api.api_key
+        self.url = api.url
+        self.model = api.model
+        self.active_request_id = None
+        self.timeout = api.timeout
+
+    # Function to get the base URL for the request
+    def _request_base_url(self) -> str:
+        return self.url
+
+    # Function to get the headers for the request
+    def _request_headers(self) -> Mapping[str, str]:
+        return {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": self.api_key,
+        }
+
+    # Function to perform a POST request to a given URL with a JSON payload
+    def _post_request(self, url: str, json_data: Dict[str, Any]) -> Dict[str, Any]:
+        headers = self._request_headers()
+        print(headers)
+        print(url)
+        print(json_data)
+        response = requests.post(url, headers=headers, json=json_data)
+        print(response)
+        return response.json()
+
+    # Function to perform a GET request to a given URL
+    def _get_request(self, url: str) -> Dict[str, Any]:
+        headers = self._request_headers()
+        response = requests.get(url, headers=headers)
+        return response.json()
+
+    # Function to prepare the metrics from the data received from the request
+    def _prepare_metrics(self, data):
+        metrics = {
+            "timestamp": datetime.now().isoformat(),
+            "status": data.get("status"),
+            "model": self.model,
+            "delayTime": data.get("delayTime"),
+            "executionTime": data.get("executionTime"),
+            "object": "embedding"
+        }
+
+        if data.get("output"):
+            last_output = data["output"]["usage"]
+            metrics.update({
+                "prompt_tokens": last_output.get('prompt_tokens') or last_output.get('input'),
+                "total_tokens": last_output.get('total_tokens') or (last_output.get('input') + last_output.get('output')),
+            })
+        return metrics
+
+
+    # This function generates a request and waits for its completion or cancellation.
+    # If the request takes more than the specified timeout, it cancels the request.
+    def generate(self, input_data) -> Dict[str, Any]:
+        # Prepare the input data for the request
+
+        response = self._post_request(f"{self._request_base_url()}/run", {"input": {"sentences": input_data}})
+        print(response)
+        self.active_request_id = response["id"]
+
+        start_time = time.time()  
+        while True:
+            # Get the status of the request
+            # If the request is completed or cancelled, log the metrics and break the loop
+            response = self._get_request(f"{self._request_base_url()}/status/{self.active_request_id}")
+            print(response)
+            if response["status"] in ["COMPLETED", "CANCELLED"]:
+                mongo.insert_one(self._prepare_metrics(response))
+                break
+
+            # Calculate the elapsed time
+            # If the elapsed time is more than the timeout, cancel the request and log the metrics
+            elapsed_time = time.time() - start_time  
+            if elapsed_time > self.timeout:  
+                response = self.cancel_requests()  
+                print(response)
+                mongo.insert_one(self._prepare_metrics(response))
+                print("Request timed out.")
+                break
+            # Wait for one second before checking the request status again
+            time.sleep(1)
+
+        return response
     
     # This function cancels the active request.
     def cancel_requests(self) -> Optional[requests.Response]:
