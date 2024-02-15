@@ -10,7 +10,8 @@ setup(
         'fastapi[all]',
         'pydantic',
         'aiohttp',
-        'requests'
+        'requests',
+        'uvicorn[standard]'
     ],
     # Add all additional information here.
 )

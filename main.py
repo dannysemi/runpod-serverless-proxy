@@ -63,6 +63,27 @@ def get_config_by_model(model_name):
         
 # Function to format the response data
 def format_response(data):
+    try:
+        text_value = data['output'][0]['choices'][0]['tokens'][0]
+    except (KeyError, IndexError, TypeError):
+        try:
+            text_value = data['output'][0]['choices'][0]['message']['content']
+        except (KeyError, IndexError, TypeError):
+            text_value = ''
+    
+    usage = data['output'][0].get('usage', {})
+
+    if 'prompt_tokens' in usage and 'completion_tokens' in usage:
+        prompt_tokens = usage.get('prompt_tokens', 0)
+        completion_tokens = usage.get('completion_tokens', 0)
+        total_tokens = usage.get('total_tokens', 0)
+    elif 'input' in usage and 'output' in usage:
+        prompt_tokens = usage.get('input', 0)
+        completion_tokens = usage.get('output', 0)
+        total_tokens = prompt_tokens + completion_tokens
+    else:
+        prompt_tokens = completion_tokens = total_tokens = 0
+
     openai_like_response = {
         'id': data['id'],
         'object': 'text_completion',
@@ -72,15 +93,15 @@ def format_response(data):
         'choices': [
             {
                 'index': 0,
-                'text': data['output'][0]['choices'][0]['tokens'][0],
+                'text': text_value,
                 'logprobs': None,
                 'finish_reason': 'stop' if data['status'] == 'COMPLETED' else 'length'
             }
         ],
         'usage': {
-            'prompt_tokens': data['output'][0]['usage']['input'],
-            'completion_tokens': data['output'][0]['usage']['output'],
-            'total_tokens': data['output'][0]['usage']['input'] + data['output'][0]['usage']['output']
+            'prompt_tokens': prompt_tokens,
+            'completion_tokens': completion_tokens,
+            'total_tokens': total_tokens
         }
     }
 
@@ -143,17 +164,12 @@ async def request_prompt(request: Request):
 async def request_embeddings(request: Request):
     try:
         data = await request.json()
-        print(data)
         model = data.get("model")
-        print(model)
         if not model:
             return JSONResponse(status_code=400, content={"detail ": "Missing model in request."})
         payload = data.get("input")
-        print(payload)
         api = get_config_by_model(model)
-        print(api)
         runpod: RunpodServerlessEmbedding = RunpodServerlessEmbedding(api=api)
-        print(runpod)
         return get_embedding(runpod, payload)
         
     except Exception as e:
@@ -204,7 +220,6 @@ def get_synchronous(runpod, prompt):
 def get_embedding(runpod, embedding):
     # Generate a response from the runpod
     response = runpod.generate(embedding)
-    print(response)
     # Check if the response is not cancelled
     if(response['status'] != "CANCELLED"):
             # Format the response

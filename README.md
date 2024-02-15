@@ -10,6 +10,7 @@ This is a FastAPI application providing an OpenAI-compatible API for sporadic te
 - FastAPI
 - A Runpod serverless endpoint running `runpod/worker-vllm:0.2.3`. See the [Setup Guide](./docs/runpod_endpoint.md) for instructions on setting this up.
 - **New**: Optionally use `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker for access to `enforce_eager` flag. This flag frees up vram occupied by CUDA graphs at the expense of execution speed. Overall quality remains the same.
+- **New**: Use `registry.gitlab.com/dannysemi/worker-embeddings:0.1.7` for generating embeddings. `MODEL_NAME` should be any SentenceTransformer-compatible model on HuggingFace.
 
 ### New guides for SillyTavern and hf-pre-downloader
 
@@ -33,6 +34,7 @@ The application provides the following API endpoints which mirror the OpenAI api
 
 - `POST /chat/completions`: Generate a chat completion
 - `POST /completions`: Generate a completion (Note: streaming does not work for this endpoint.)
+- `POST /embeddings`: Generate embeddings **NEW!**
 - `GET /models`: List all models
 - `GET /models/{model_id}`: Get a specific model
 
