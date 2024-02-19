@@ -1,6 +1,6 @@
 import time, json
 import asyncio
-from typing import Any, Dict, List, Mapping, Optional, AsyncIterator
+from typing import Any, Dict, List, Mapping, Optional, AsyncIterator, Union
 from pydantic import BaseModel
 import requests
 import aiohttp
@@ -18,19 +18,24 @@ class ApiConfig(BaseModel):
 
 # Pydantic model for parameters
 class Params(BaseModel):
-    max_tokens: int = 50
+    max_tokens: int = 16
     n: int = 1
-    best_of: Optional[int] = None
+    best_of: Optional[int] = n
     presence_penalty: float = 0.0
     frequency_penalty: float = 0.0
     repetition_penalty: float = 1.0
-    temperature: float = 0.0
+    temperature: float = 1.0
     top_p: float = 1.0
-    top_k: int = 100
+    top_k: int = -1
+    min_p: float = 0.0
     use_beam_search: bool = False
-    stop: Optional[List[str]] = None
-    skip_special_tokens: bool = True
+    length_penalty: float = 1.0
+    early_stopping: Union[bool, str] = False
+    stop: Union[None, str, List[str]] = None
+    stop_token_ids: Optional[List[int]] = None
     ignore_eos: bool = False
+    skip_special_tokens: bool = True
+    spaces_between_special_tokens: bool = True
 
 
 # Class for interacting with Runpod API
