@@ -8,6 +8,6 @@ Mistral:
 {% for message in messages %}{% if message['role'] == 'user' or message['role'] == 'system' %}{{ '[INST] ' + message['content'] + ' [/INST]' }}{% elif message['role'] == 'assistant' %}{{ message['content'] }}{% else %}{{ raise_exception('Only user ,assistant, and system roles are supported!') }}{% endif %}{% endfor %}
 
 Simple (could work for various models that don't specify the chat template):
-{% for message in messages %}{{message['role']|upper + ':' + '\n' + message['content'] + '\n'}}{% endfor %}\nASSISTANT:\n
+{% for message in messages %}{{message['role']|upper + ':' + '\n' + message['content'] + '\n' + eos_token + '\n'}}{% endfor %}\nASSISTANT:\n
 
 //I like to include the AI prompt at the end, but it may not be necessary.

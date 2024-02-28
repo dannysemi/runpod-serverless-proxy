@@ -203,7 +203,7 @@ class RunpodServerlessEmbedding:
     # If the request takes more than the specified timeout, it cancels the request.
     def generate(self, input_data) -> Dict[str, Any]:
         # Prepare the input data for the request
-
+        print(input_data)
         response = self._post_request(f"{self._request_base_url()}/run", {"input": {"sentences": input_data}})
         self.active_request_id = response["id"]
 

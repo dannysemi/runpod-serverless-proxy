@@ -117,6 +117,7 @@ params = Params()
 async def request_chat(request: Request):
     try:
         data = await request.json()
+        print(data)
         model = data.get("model")
         if not model:
             return JSONResponse(status_code=400, content={"detail": "Missing model in request."})
