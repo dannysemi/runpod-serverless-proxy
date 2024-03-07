@@ -22,7 +22,7 @@ Note: This image has an Idle Timeout setting of 5 seconds, but for the purposes 
 
 ~~**Important:** Be sure to use the new `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker or this configuration will not work.~~
 
-Newest worker-vllm supports openai-compatible API. Use `runpod/worker-vllm:0.3.1` for the container image.
+Newest worker-vllm supports openai-compatible API. Use `runpod/worker-vllm:0.3.1-cuda12.1.0` for the container image.
 
 Here are the template configuration values:
 
