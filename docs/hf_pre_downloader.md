@@ -5,7 +5,7 @@ This is a recommended step before creating a serverless LLM endpoint. Follow the
 1. **Create a Runpod Network Volume:** The size of the volume should be appropriate for the model being downloaded. The region should provide the necessary hardware to run the model. You can create a network volume from the [Storage section of the dashboard](https://www.runpod.io/console/user/storage).
 
 
-2. **Create a GPU Pod:** Use the provided template to create a GPU pod. If available, a CPU pod can also be used. Any hardware should suffice, the pod is just being used to download the files. Use the following link to create the pod: [Create Pod](https://runpod.io/gsc?template=8ep9tsqvom&ref=rql9o4ou)
+2. **Create a GPU Pod:** Use the provided template to create a GPU pod. If available, a CPU pod can also be used. Any hardware should suffice, the pod is just being used to download the files. Use the following link to create the pod: [Create Pod](https://runpod.io/console/gpu-cloud?template=obhsatpv7d&ref=rql9o4ou)
 
 3. **Attach Network Volume to Pod:** Attach the network volume created in Step 1 to the pod. Overwrite the `MODEL_NAME` environment variable in the template with the name of the model you want to download. **Note**: Currently there is a UI bug on the deployment details screen when creating a pod that warns about a network volume not being attached even when one is present. This warning can be ignored as long as you have already attached the network volume.
 
