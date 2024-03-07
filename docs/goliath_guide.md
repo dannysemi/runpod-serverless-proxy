@@ -1,5 +1,7 @@
 # Guide for Creating a Serverless LLM Endpoint for Goliath-longLORA-120b-rope8-32k-fp16-AWQ
 
+[Updated 03/07/2024]
+
 Configuration for this model [TheBloke/Goliath-longLORA-120b-rope8-32k-fp16-AWQ](https://huggingface.co/TheBloke/Goliath-longLORA-120b-rope8-32k-fp16-AWQ) is nearly identical to the one I use in the [MiquMaid](./miqumaid_guide.md). So I will only highlight the differences here.
 
 **Note**: There's probably enough available vram with this setup to use a larger `MAX_MODEL_LENGTH` and context size within ST, but I haven't tested anything higher than `8192`.
@@ -14,9 +16,13 @@ I use a network volume with a size of `65 gb`. Make sure the region you choose h
 
 ![endpoint configuration](image-10.png)
 
+Note: This image has an Idle Timeout setting of 5 seconds, but for the purposes of this guide a 1-second timeout is more appropriate. 
+
 ![template configuration](image-11.png)
 
-**Important:** Be sure to use the new `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker or this configuration will not work.
+~~**Important:** Be sure to use the new `registry.gitlab.com/dannysemi/worker-vllm:eager_mode` worker or this configuration will not work.~~
+
+Newest worker-vllm supports openai-compatible API. Use `runpod/worker-vllm:0.3.1` for the container image.
 
 Here are the template configuration values:
 
@@ -37,6 +43,15 @@ Chat template:
 {% for message in messages %}{{message['role']|upper + ':' + '\n' + message['content'] + '\n'}}{% endfor %}\nASSISTANT:\n
 ```
 
-## See MiquMaid guide for ST and Server settings
+## Runpod Serverless OpenAI-compatible API settings for Sillytavern
 
-The server and ST settings I use for this goliath model are identical to the ones I use for [MiquMaid](./miqumaid_guide.md).
+Use Chat Completion -> Custom (OpenAI-compatible) options in the API and Chat Completion Source dropdowns.
+
+For Custom Endpoint (Base URL) you will use the Runpod api endpoint url with your endpoint id in place of `endpoint_id`:
+`https://api.runpod.ai/v2/endpoint_id/openai/v1`
+
+You will need to paste your Runpod API key in the Custom API key field.
+
+Click Connect and the Models dropdown should populate with the name of the model. Select it and everything should be ready.
+
+Note: If you did not run a test request on the endpoint dashboard, or pre-load the model files, it could take several minutes for the endpoint to become active. Check that the endpoint is functioning properly before attempting to connect.
